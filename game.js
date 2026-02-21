@@ -35,7 +35,7 @@ let player = {
   x: 3,
   y: 6,
   size: tileSize,
-  speed: 0.1
+  speed: 0.1,
   direction: "down",
   frame: 0,
   frameTimer: 0
