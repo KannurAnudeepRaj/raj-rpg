@@ -36,6 +36,9 @@ let player = {
   y: 6,
   size: tileSize,
   speed: 0.1
+  direction: "down",
+  frame: 0,
+  frameTimer: 0
 };
 
 let npc = {
@@ -73,10 +76,22 @@ function update() {
   let newX = player.x;
   let newY = player.y;
 
-  if (keys["ArrowUp"]) newY -= player.speed;
-  if (keys["ArrowDown"]) newY += player.speed;
-  if (keys["ArrowLeft"]) newX -= player.speed;
-  if (keys["ArrowRight"]) newX += player.speed;
+  if (keys["ArrowUp"]) {
+  newY -= player.speed;
+  player.direction = "up";
+}
+if (keys["ArrowDown"]) {
+  newY += player.speed;
+  player.direction = "down";
+}
+if (keys["ArrowLeft"]) {
+  newX -= player.speed;
+  player.direction = "left";
+}
+if (keys["ArrowRight"]) {
+  newX += player.speed;
+  player.direction = "right";
+}
 
   if (!isBlocked(newX, player.y)) player.x = newX;
   if (!isBlocked(player.x, newY)) player.y = newY;
@@ -98,13 +113,40 @@ function drawMap() {
 }
 
 function drawPlayer() {
+  // Animate frame
+  player.frameTimer++;
+  if (player.frameTimer > 20) {
+    player.frame = (player.frame + 1) % 2;
+    player.frameTimer = 0;
+  }
+
+  const px = player.x * tileSize;
+  const py = player.y * tileSize;
+
+  // Body
   ctx.fillStyle = "#f4d35e";
-  ctx.fillRect(
-    player.x * tileSize,
-    player.y * tileSize,
-    player.size,
-    player.size
-  );
+  ctx.fillRect(px + 8, py + 8, 16, 16);
+
+  // Direction indicator (tiny head/eye pixel)
+  ctx.fillStyle = "#000";
+
+  if (player.direction === "up")
+    ctx.fillRect(px + 14, py + 6, 4, 4);
+
+  if (player.direction === "down")
+    ctx.fillRect(px + 14, py + 22, 4, 4);
+
+  if (player.direction === "left")
+    ctx.fillRect(px + 6, py + 14, 4, 4);
+
+  if (player.direction === "right")
+    ctx.fillRect(px + 22, py + 14, 4, 4);
+
+  // Simple breathing animation
+  if (player.frame === 1) {
+    ctx.fillStyle = "#ffd166";
+    ctx.fillRect(px + 10, py + 10, 12, 12);
+  }
 }
 
 function drawNPC() {
