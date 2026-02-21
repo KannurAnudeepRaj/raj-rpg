@@ -5,48 +5,79 @@ canvas.width = 640;
 canvas.height = 480;
 
 const tileSize = 32;
+const cols = 20;
+const rows = 15;
 
-const mapCols = 20;
-const mapRows = 15;
+// 0 = grass
+// 1 = water
+// 2 = rock
+// 3 = village
+
+const map = [
+  [2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2],
+  [2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2],
+  [2,0,1,1,1,1,0,0,0,0,0,0,3,3,3,0,0,0,0,2],
+  [2,0,1,1,1,1,0,0,0,0,0,0,3,3,3,0,0,0,0,2],
+  [2,0,0,0,0,0,0,0,0,0,0,0,3,3,3,0,0,0,0,2],
+  [2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2],
+  [2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2],
+  [2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2],
+  [2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2],
+  [2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2],
+  [2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2],
+  [2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2],
+  [2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2],
+  [2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2],
+  [2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2],
+];
 
 let player = {
   x: 5,
   y: 5,
   size: tileSize,
-  color: "#f4d35e"
+  speed: 0.1
 };
 
 let keys = {};
 
-document.addEventListener("keydown", (e) => {
-  keys[e.key] = true;
-});
+document.addEventListener("keydown", e => keys[e.key] = true);
+document.addEventListener("keyup", e => keys[e.key] = false);
 
-document.addEventListener("keyup", (e) => {
-  keys[e.key] = false;
-});
-
-function update() {
-  if (keys["ArrowUp"]) player.y -= 0.1;
-  if (keys["ArrowDown"]) player.y += 0.1;
-  if (keys["ArrowLeft"]) player.x -= 0.1;
-  if (keys["ArrowRight"]) player.x += 0.1;
+function isBlocked(x, y) {
+  let tile = map[Math.floor(y)][Math.floor(x)];
+  return tile === 1 || tile === 2;
 }
 
-function drawGrid() {
-  for (let x = 0; x < mapCols; x++) {
-    for (let y = 0; y < mapRows; y++) {
-      ctx.fillStyle = "#3a7d44";
-      ctx.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
+function update() {
+  let newX = player.x;
+  let newY = player.y;
 
-      ctx.strokeStyle = "#2e6b38";
-      ctx.strokeRect(x * tileSize, y * tileSize, tileSize, tileSize);
+  if (keys["ArrowUp"]) newY -= player.speed;
+  if (keys["ArrowDown"]) newY += player.speed;
+  if (keys["ArrowLeft"]) newX -= player.speed;
+  if (keys["ArrowRight"]) newX += player.speed;
+
+  if (!isBlocked(newX, player.y)) player.x = newX;
+  if (!isBlocked(player.x, newY)) player.y = newY;
+}
+
+function drawMap() {
+  for (let y = 0; y < rows; y++) {
+    for (let x = 0; x < cols; x++) {
+      let tile = map[y][x];
+
+      if (tile === 0) ctx.fillStyle = "#3a7d44";      // grass
+      if (tile === 1) ctx.fillStyle = "#1b4965";      // water
+      if (tile === 2) ctx.fillStyle = "#5c4033";      // rock
+      if (tile === 3) ctx.fillStyle = "#b08968";      // village
+
+      ctx.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
     }
   }
 }
 
 function drawPlayer() {
-  ctx.fillStyle = player.color;
+  ctx.fillStyle = "#f4d35e";
   ctx.fillRect(
     player.x * tileSize,
     player.y * tileSize,
@@ -55,12 +86,12 @@ function drawPlayer() {
   );
 }
 
-function gameLoop() {
+function loop() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   update();
-  drawGrid();
+  drawMap();
   drawPlayer();
-  requestAnimationFrame(gameLoop);
+  requestAnimationFrame(loop);
 }
 
-gameLoop();
+loop();
