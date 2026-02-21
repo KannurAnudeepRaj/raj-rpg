@@ -38,9 +38,30 @@ let player = {
   speed: 0.1
 };
 
+let npc = {
+  x: 13,
+  y: 3,
+  size: tileSize,
+  color: "#ff6b6b",
+  dialogue: "Welcome, Architect. Build wisely."
+};
+
+let showDialogue = false;
+
 let keys = {};
 
-document.addEventListener("keydown", e => keys[e.key] = true);
+document.addEventListener("keydown", e => {
+  keys[e.key] = true;
+
+  if (e.key === "e" || e.key === "E") {
+    if (
+      Math.abs(player.x - npc.x) < 1 &&
+      Math.abs(player.y - npc.y) < 1
+    ) {
+      showDialogue = !showDialogue;
+    }
+  }
+});
 document.addEventListener("keyup", e => keys[e.key] = false);
 
 function isBlocked(x, y) {
@@ -86,11 +107,37 @@ function drawPlayer() {
   );
 }
 
+function drawNPC() {
+  ctx.fillStyle = npc.color;
+  ctx.fillRect(
+    npc.x * tileSize,
+    npc.y * tileSize,
+    npc.size,
+    npc.size
+  );
+}
+
+function drawDialogue() {
+  if (!showDialogue) return;
+
+  ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
+  ctx.fillRect(50, 350, 540, 100);
+
+  ctx.strokeStyle = "#ffffff";
+  ctx.strokeRect(50, 350, 540, 100);
+
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "16px monospace";
+  ctx.fillText(npc.dialogue, 70, 400);
+}
+
 function loop() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   update();
   drawMap();
+  drawNPC();
   drawPlayer();
+  drawDialogue();
   requestAnimationFrame(loop);
 }
 
